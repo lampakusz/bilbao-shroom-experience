@@ -27,6 +27,7 @@ import { EnemyType } from './entities/EnemyTypes.ts';
 import { vibePuzzle } from './gameplay/VibePuzzle.ts';
 import { keypadUI } from './ui/KeypadUI.ts';
 import { stickyNoteModal } from './ui/StickyNoteModal.ts';
+import { resolveAssetPath } from './utils/assetPath.ts';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
 if (!canvas) {
@@ -121,7 +122,7 @@ const p1 = new Player({
   color: 0x3b82f6,
   initialPosition: new THREE.Vector3(4, 0, 4),
   characterName: 'Viki',
-  texturePath: '/textures/player1_viki.png',
+  texturePath: resolveAssetPath('/textures/player1_viki.png'),
   jointOffset: new THREE.Vector3(0.20, 1.02, 0.04),
 });
 scene.add(p1.mesh);
@@ -132,7 +133,7 @@ const p2 = new Player({
   color: 0xef4444,
   initialPosition: new THREE.Vector3(4, 0, 8),
   characterName: 'Kristóf',
-  texturePath: '/textures/player2_kristof.png',
+  texturePath: resolveAssetPath('/textures/player2_kristof.png'),
   jointOffset: new THREE.Vector3(0.26, 0.92, 0.04),
 });
 scene.add(p2.mesh);

@@ -3,6 +3,7 @@ import type { Level } from '../world/Level.ts';
 import type { CameraRig } from '../engine/CameraRig.ts';
 import { GRID_CELL_SIZE } from '../world/BlockFactory.ts';
 import { voiceManager } from '../audio/VoiceManager.ts';
+import { resolveAssetPath } from '../utils/assetPath.ts';
 
 export interface PlayerOptions {
   id?: 'p1' | 'p2';
@@ -293,7 +294,7 @@ export class Player {
     const isP2 = customId === 'p2' || this.playerColorHex.toLowerCase().includes('ef4444') || customName === 'Kristóf';
     this.id = customId ?? (isP2 ? 'p2' : 'p1');
     this.characterName = customName ?? (isP2 ? 'Kristóf' : 'Viki');
-    this.texturePath = customTexture ?? (isP2 ? '/textures/player2_kristof.png' : '/textures/player1_viki.png');
+    this.texturePath = customTexture ? resolveAssetPath(customTexture) : resolveAssetPath(isP2 ? '/textures/player2_kristof.png' : '/textures/player1_viki.png');
 
     // Joint tip position on sprite: mouth offset in local billboard coordinates
     // Viki: mouth anchor at (x: 0.1, y: 1.15, z: 0.05)

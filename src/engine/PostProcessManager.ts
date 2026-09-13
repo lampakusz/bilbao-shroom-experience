@@ -3,6 +3,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { PsychedelicShader } from '../shaders/PsychedelicShader.ts';
+import { resolveAssetPath } from '../utils/assetPath.ts';
 
 export class PostProcessManager {
   private composer: EffectComposer;
@@ -37,7 +38,7 @@ export class PostProcessManager {
 
     const loader = new THREE.TextureLoader();
     loader.load(
-      '/textures/scenery.png',
+      resolveAssetPath('/textures/scenery.png'),
       (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.wrapS = THREE.ClampToEdgeWrapping;

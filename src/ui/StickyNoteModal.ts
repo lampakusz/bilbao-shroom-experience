@@ -14,6 +14,10 @@ export class StickyNoteModal {
   private noteImg!: HTMLImageElement;
   private isModalOpen = false;
   private onCloseCallback?: () => void;
+  private closeTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  /** True for ~800ms after closing so TriggerSystem won't immediately re-open */
+  public justClosed = false;
+  private justClosedTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   private constructor() {
     if (typeof document === 'undefined') return;
@@ -167,7 +171,21 @@ export class StickyNoteModal {
   }
 
   public open(onClose?: () => void): void {
-    if (typeof document === 'undefined' || !this.container || this.isModalOpen) return;
+    if (typeof document === 'undefined' || !this.container) return;
+    // Cancel any pending close (prevents race when re-opened quickly)
+    if (this.closeTimeoutId !== null) {
+      clearTimeout(this.closeTimeoutId);
+      this.closeTimeoutId = null;
+      this.container.style.display = 'none';
+    }
+    // Don't re-open if already visibly open
+    if (this.isModalOpen) return;
+    // Clear justClosed guard since we're explicitly opening
+    if (this.justClosedTimeoutId !== null) {
+      clearTimeout(this.justClosedTimeoutId);
+      this.justClosedTimeoutId = null;
+    }
+    this.justClosed = false;
 
     this.isModalOpen = true;
     this.onCloseCallback = onClose;
@@ -194,9 +212,19 @@ export class StickyNoteModal {
     audioManager.playSwitchClick();
     inputManager.lockControls(false);
 
+    // Mark as just-closed for 800ms so TriggerSystem won't immediately re-open
+    this.justClosed = true;
+    if (this.justClosedTimeoutId !== null) clearTimeout(this.justClosedTimeoutId);
+    this.justClosedTimeoutId = setTimeout(() => {
+      this.justClosed = false;
+      this.justClosedTimeoutId = null;
+    }, 800);
+
     this.container.style.opacity = '0';
-    setTimeout(() => {
+    if (this.closeTimeoutId !== null) clearTimeout(this.closeTimeoutId);
+    this.closeTimeoutId = setTimeout(() => {
       this.container.style.display = 'none';
+      this.closeTimeoutId = null;
     }, 200);
 
     if (this.onCloseCallback) {

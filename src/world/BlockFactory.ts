@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { TileType } from './TileTypes.ts';
+import { resolveAssetPath } from '../utils/assetPath.ts';
 
 export const GRID_CELL_SIZE = 2.0;
 
@@ -54,8 +55,9 @@ class TextureCache {
         this.textures.set(path, tex);
         return tex;
       }
+      const resolvedPath = resolveAssetPath(path);
       tex = this.loader.load(
-        path,
+        resolvedPath,
         (loadedTex) => {
           loadedTex.colorSpace = THREE.SRGBColorSpace;
           loadedTex.needsUpdate = true;

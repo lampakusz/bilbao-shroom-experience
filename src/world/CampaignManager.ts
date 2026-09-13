@@ -4,7 +4,7 @@ import { TileTheme, TileType } from './TileTypes.ts';
 import { musicManager } from '../audio/MusicManager.ts';
 
 export const STORAGE_KEY_CAMPAIGN = 'custom_campaign_data';
-export const CAMPAIGN_VERSION = 'v4.5_utf8_clean_text';
+export const CAMPAIGN_VERSION = 'v5.0_custom_save_persistent';
 
 export interface CampaignData {
   version?: string;
@@ -283,12 +283,7 @@ export class CampaignManager {
           Array.isArray(parsed.levels) &&
           parsed.levels.length >= 6
         ) {
-          // Ensure canonical campaign layouts are synchronized
-          for (let i = 0; i < Math.min(6, ALL_LEVELS.length); i++) {
-            if (ALL_LEVELS[i]) {
-              parsed.levels[i] = JSON.parse(JSON.stringify(ALL_LEVELS[i]));
-            }
-          }
+          // Preserve user-edited campaign data as-is (no overwrite with defaults)
           return parsed;
         }
         console.warn(`Upgrading campaign data in localStorage to ${CAMPAIGN_VERSION} with 6 levels.`);
@@ -322,10 +317,33 @@ export class CampaignManager {
 
   public importCampaignJSON(jsonStr: string): boolean {
     try {
-      const parsed = JSON.parse(jsonStr) as CampaignData;
+      const parsed = JSON.parse(jsonStr);
+
+      // Format 1: Full campaign object { levels: [...], id, name, ... }
       if (parsed && Array.isArray(parsed.levels) && parsed.levels.length > 0) {
-        this.campaign = parsed;
+        this.campaign = parsed as CampaignData;
+        this.campaign.version = CAMPAIGN_VERSION;
         this.activeLevelIndex = 0;
+        this.saveToLocalStorage();
+        this.notifyListeners();
+        return true;
+      }
+
+      // Format 2: Array of level objects [ { tiles: [...], ... }, ... ]
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.tiles) {
+        this.campaign.levels = parsed;
+        this.campaign.version = CAMPAIGN_VERSION;
+        this.activeLevelIndex = 0;
+        this.saveToLocalStorage();
+        this.notifyListeners();
+        return true;
+      }
+
+      // Format 3: Single level object { tiles: [...], spawnP1, ... }
+      if (parsed && Array.isArray(parsed.tiles)) {
+        const idx = this.activeLevelIndex;
+        this.campaign.levels[idx] = parsed;
+        this.campaign.version = CAMPAIGN_VERSION;
         this.saveToLocalStorage();
         this.notifyListeners();
         return true;

@@ -1164,7 +1164,7 @@ export class TriggerSystem {
         updateNpcSpeechPosition(note.promptBubble, note.worldPos, this.cameraRig.camera, 1.2);
       }
 
-      if (noteNear && this.clueHintCooldown <= 0 && !keypadUI.isKeypadOpen() && !stickyNoteModal.isOpen()) {
+      if (noteNear && this.clueHintCooldown <= 0 && !keypadUI.isKeypadOpen() && !stickyNoteModal.isOpen() && !stickyNoteModal.justClosed) {
         const action1 = dNote1 < 1.6 && (inputManager.getP1Action() || inputManager.isP1Action());
         const action2 = dNote2 < 1.6 && (inputManager.getP2Action() || inputManager.isP2Action());
         if (action1 || action2) {

@@ -15,6 +15,7 @@ import {
 } from '../ui/NpcSpeechOverlay.ts';
 import { InputManager } from '../engine/InputManager.ts';
 import { gameState } from '../engine/GameState.ts';
+import { resolveAssetPath } from '../utils/assetPath.ts';
 
 function showGameToast(message: string): void {
   if (typeof document === 'undefined') return;
@@ -577,7 +578,7 @@ export class Enemy {
     if (typeof document !== 'undefined') {
       const loader = new THREE.TextureLoader();
       loader.load(
-        '/sprites/npc_vagrant.png',
+        resolveAssetPath('/sprites/npc_vagrant.png'),
         (tex) => {
           tex.colorSpace = THREE.SRGBColorSpace;
           spriteMat.map = tex;
