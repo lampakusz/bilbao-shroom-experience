@@ -162,6 +162,50 @@ export class CameraRig {
     this.focusOnDoor(targetPos, duration);
   }
 
+  /**
+   * Cinematic focus on a floor-level exit portal using the standard isometric
+   * overhead perspective (same height/angle as normal gameplay).
+   * - Flies to a position directly above-and-behind the portal (isometric offset)
+   * - Looks straight at the portal centre
+   * - Then returns smoothly to the players after the hold phase
+   */
+  public focusOnPortal(portalPos: THREE.Vector3, duration = 2.5): void {
+    this.isDoorCinematic = true;
+    this.isCinematic = true;
+    this.clearOcclusion();
+    InputManager.getInstance().lockControls(true);
+
+    this.doorCinematicTimer = 0;
+    this.doorCinematicDuration = duration;
+    this.doorOpenTriggered = true; // no separate "door open" callback needed
+    this.onDoorOpenCallback = undefined;
+    this.onDoorCinematicComplete = undefined;
+
+    this.doorStartCamPos.copy(this.camera.position);
+    this.doorStartLookAt.copy(this.currentLookAt);
+
+    // Isometric overhead target — same offset ratios as normal gameplay
+    // baseHeight=12, baseOffsetZ=14 from CAM_MODE_ISOMETRIC
+    const isoHeight = this.baseHeight;     // ~12m above ground
+    const isoOffsetZ = this.baseOffsetZ;   // ~14m behind along Z
+
+    // If there's a path curve, derive the angle from it; otherwise use 0 (straight back on Z)
+    let angle = 0;
+    if (this.curve) {
+      const t = this.sampleCurveClosestT(portalPos);
+      const T = this.curve.getTangentAt(t).normalize();
+      angle = Math.atan2(-T.z, T.x);
+    }
+
+    this.doorTargetCamPos.set(
+      portalPos.x + Math.sin(angle) * isoOffsetZ,
+      portalPos.y + isoHeight,
+      portalPos.z + Math.cos(angle) * isoOffsetZ
+    );
+    // Look straight at portal centre (Y stays at ground level)
+    this.doorTargetLookAt.copy(portalPos);
+  }
+
   public startCinematic(initialCamPos?: THREE.Vector3, initialLookAt?: THREE.Vector3): void {
     this.isCinematic = true;
     this.clearOcclusion();

@@ -1350,9 +1350,7 @@ export class TriggerSystem {
 
         // Cinematic camera fly-to: pan to the newly opened exit portal
         if (this.cameraRig) {
-          // Face the portal from the south (positive Z normal) for a clear view
-          const portalNormal = new THREE.Vector3(0, 0, 1);
-          this.cameraRig.focusOnDoor(portal.position.clone(), portalNormal);
+          this.cameraRig.focusOnPortal(portal.position.clone());
         }
       }
 
@@ -1699,7 +1697,7 @@ export class TriggerSystem {
       this.setPortalReadyVisuals(portal);
       // Cinematic camera fly-to portal
       if (this.cameraRig) {
-        this.cameraRig.focusOnDoor(portal.position.clone(), new THREE.Vector3(0, 0, 1));
+        this.cameraRig.focusOnPortal(portal.position.clone());
       }
     }
 
