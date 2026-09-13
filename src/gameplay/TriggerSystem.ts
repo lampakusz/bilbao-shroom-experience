@@ -1347,6 +1347,13 @@ export class TriggerSystem {
         this.setPortalReadyVisuals(portal);
         audioManager.playPlateStep(true, true);
         audioManager.playDoorOpen();
+
+        // Cinematic camera fly-to: pan to the newly opened exit portal
+        if (this.cameraRig) {
+          // Face the portal from the south (positive Z normal) for a clear view
+          const portalNormal = new THREE.Vector3(0, 0, 1);
+          this.cameraRig.focusOnDoor(portal.position.clone(), portalNormal);
+        }
       }
 
       if (portal.locked) {
@@ -1690,6 +1697,10 @@ export class TriggerSystem {
       portal.barrierLight.color.setHex(0x22c55e);
       portal.barrierLight.intensity = 1.0;
       this.setPortalReadyVisuals(portal);
+      // Cinematic camera fly-to portal
+      if (this.cameraRig) {
+        this.cameraRig.focusOnDoor(portal.position.clone(), new THREE.Vector3(0, 0, 1));
+      }
     }
 
     audioManager.playPlateStep(true, true);
